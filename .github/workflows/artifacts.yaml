@@ -1,0 +1,62 @@
+name: Build Artifacts
+
+on:
+  workflow_call:
+
+jobs:
+  compile:
+    name: "Compile omnifests"
+    strategy:
+      matrix:
+        variant: [root]
+        architecture: [x86_64, aarch64]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install
+        run: |
+          sudo apt-get install -qy podman
+      - name: Pull
+        run: |
+          podman pull ghcr.io/osbuild/otk:latest
+      - name: Compile
+        run: |
+          podman run  -v .:/app ghcr.io/osbuild/otk:latest compile -e environments/${{ matrix.architecture }}.yaml variants/${{ matrix.variant }}.yaml > ${{ matrix.architecture }}-${{ matrix.variant }}.manifest.json
+      - name: Upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.architecture }}-${{ matrix.variant }}.manifest.json
+          path: ${{ matrix.architecture }}-${{ matrix.variant }}.manifest.json
+          retention-days: 7
+  build:
+    name: "Build manifests"
+    needs: compile
+    strategy:
+      matrix:
+        variant: [root]
+        architecture: [x86_64]  # , aarch64]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ matrix.architecture }}-${{ matrix.variant }}.manifest.json
+      - name: Install
+        run: |
+          sudo apt-get install -qy podman
+      - name: Pull
+        run: |
+          sudo podman pull ghcr.io/teamsbc/container-for-osbuild:latest
+      - name: Prepare
+        run: |
+          mkdir out
+      - name: Build
+        run: |
+          sudo podman run \
+            --privileged \
+            -v ./out:/out \
+            -v ./${{ matrix.architecture }}-${{ matrix.variant }}.manifest.json:/manifest.json \
+            ghcr.io/teamsbc/container-for-osbuild:latest \
+            --output-directory=/out \
+            --export=raw \
+            /manifest.json

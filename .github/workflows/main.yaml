@@ -10,5 +10,6 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  manifest:
-    uses: ./.github/workflows/manifest.yaml
+  artifacts:
+    name: Build Artifacts
+    uses: ./.github/workflows/artifacts.yaml
