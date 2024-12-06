@@ -62,8 +62,15 @@ jobs:
             --export=raw-xz \
             --export=qcow2 \
             /manifest.json
-      - name: Rename Artifacts
+      - name: Rename
         run: |
           sudo mv out/raw/disk.img ./teamsbc-${{ matrix.architecture }}-${{ matrix.variant }}.img && \
           sudo mv out/raw-xz/disk.raw.xz ./teamsbc-${{ matrix.architecture }}-${{ matrix.variant }}.img.xz && \
           sudo mv out/qcow2/disk.qcow2 ./teamsbc-${{ matrix.architecture }}-${{ matrix.variant }}.qcow2
+      - name: Upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: teamsbc-${{ matrix.architecture }}-${{ matrix.variant }}.img
+          path: teamsbc-${{ matrix.architecture }}-${{ matrix.variant }}.img
+          retention-days: 7
+
