@@ -59,4 +59,11 @@ jobs:
             ghcr.io/teamsbc/container-for-osbuild:latest \
             --output-directory=/out \
             --export=raw \
+            --export=raw-xz \
+            --export=qcow2 \
             /manifest.json
+      - name: Rename Artifacts
+        run: |
+          sudo mv out/raw/disk.img ./teamsbc-${{ matrix.architecture }}-${{ matrix.variant }}.img && \
+          sudo mv out/raw-xz/disk.raw.xz ./teamsbc-${{ matrix.architecture }}-${{ matrix.variant }}.img.xz && \
+          sudo mv out/qcow2/disk.qcow2 ./teamsbc-${{ matrix.architecture }}-${{ matrix.variant }}.qcow2
