@@ -21,12 +21,17 @@ jobs:
           podman pull ghcr.io/osbuild/otk:latest
       - name: Compile
         run: |
-          podman run  -v .:/app ghcr.io/osbuild/otk:latest compile -e environments/${{ matrix.architecture }}.yaml variants/${{ matrix.variant }}.yaml > ${{ matrix.architecture }}-${{ matrix.variant }}.manifest.json
+          podman run \
+          -v .:/app \
+          ghcr.io/osbuild/otk:latest \
+          compile \
+          -e environments/${{ matrix.architecture }}.yaml \
+          variants/${{ matrix.variant }}.yaml > teamsbc-${{ matrix.architecture }}-${{ matrix.variant }}.manifest.json
       - name: Upload
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.architecture }}-${{ matrix.variant }}.manifest.json
-          path: ${{ matrix.architecture }}-${{ matrix.variant }}.manifest.json
+          name: teamsbc-${{ matrix.architecture }}-${{ matrix.variant }}.manifest.json
+          path: teamsbc-${{ matrix.architecture }}-${{ matrix.variant }}.manifest.json
           retention-days: 7
   build:
     name: "Build manifests"
@@ -40,7 +45,7 @@ jobs:
       - name: Download
         uses: actions/download-artifact@v4
         with:
-          name: ${{ matrix.architecture }}-${{ matrix.variant }}.manifest.json
+          name: teamsbc-${{ matrix.architecture }}-${{ matrix.variant }}.manifest.json
       - name: Install
         run: |
           sudo apt-get install -qy podman
@@ -55,7 +60,7 @@ jobs:
           sudo podman run \
             --privileged \
             -v ./out:/out \
-            -v ./${{ matrix.architecture }}-${{ matrix.variant }}.manifest.json:/manifest.json \
+            -v ./teamsbc-${{ matrix.architecture }}-${{ matrix.variant }}.manifest.json:/manifest.json \
             ghcr.io/teamsbc/container-for-osbuild:latest \
             --output-directory=/out \
             --export=raw \
