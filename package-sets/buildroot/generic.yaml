@@ -4,6 +4,7 @@ otk.define:
       include:
         - coreutils
         - dosfstools
+        - e2fsprogs
         - glibc
         - policycoreutils
         - python3

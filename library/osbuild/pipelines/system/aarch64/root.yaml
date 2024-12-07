@@ -65,6 +65,97 @@ stages:
         /root/anaconda-ks.cfg:
           user: root
           group: root
+
+  # TODO from an include for the repart shenanigans :)
+  - type: org.osbuild.mkdir
+    options:
+      paths:
+        - path: /usr/lib/repart.d
+          parents: true
+  - type: org.osbuild.chown
+    options:
+      items:
+        /usr/lib/repart.d:
+          user: root
+          group: root
+
+  - type: org.osbuild.copy
+    inputs:
+      file-repart_esp:
+        type: org.osbuild.files
+        origin: org.osbuild.source
+        references:
+          - id: ${files.osbuild.const.files.repart_esp.id}
+    options:
+      paths:
+        - from: input://file-repart_esp/${files.osbuild.const.files.repart_esp.id}
+          to: tree:///usr/lib/repart.d/00-esp.conf
+          remove_destination: true
+  - type: org.osbuild.chown
+    options:
+      items:
+        /usr/lib/repart.d/00-esp.conf:
+          user: root
+          group: root
+
+  - type: org.osbuild.copy
+    inputs:
+      file-repart_root:
+        type: org.osbuild.files
+        origin: org.osbuild.source
+        references:
+          - id: ${files.osbuild.const.files.repart_root.id}
+    options:
+      paths:
+        - from: input://file-repart_root/${files.osbuild.const.files.repart_root.id}
+          to: tree:///usr/lib/repart.d/10-root.conf
+          remove_destination: true
+  - type: org.osbuild.chown
+    options:
+      items:
+        /usr/lib/repart.d/10-root.conf:
+          user: root
+          group: root
+
+  - type: org.osbuild.copy
+    inputs:
+      file-repart_swap:
+        type: org.osbuild.files
+        origin: org.osbuild.source
+        references:
+          - id: ${files.osbuild.const.files.repart_swap.id}
+    options:
+      paths:
+        - from: input://file-repart_swap/${files.osbuild.const.files.repart_swap.id}
+          to: tree:///usr/lib/repart.d/20-swap.conf
+          remove_destination: true
+  - type: org.osbuild.chown
+    options:
+      items:
+        /usr/lib/repart.d/20-swap.conf:
+          user: root
+          group: root
+
+  - type: org.osbuild.copy
+    inputs:
+      file-repart_srv:
+        type: org.osbuild.files
+        origin: org.osbuild.source
+        references:
+          - id: ${files.osbuild.const.files.repart_srv.id}
+    options:
+      paths:
+        - from: input://file-repart_srv/${files.osbuild.const.files.repart_srv.id}
+          to: tree:///usr/lib/repart.d/30-srv.conf
+          remove_destination: true
+  - type: org.osbuild.chown
+    options:
+      items:
+        /usr/lib/repart.d/30-srv.conf:
+          user: root
+          group: root
+
+
   - type: org.osbuild.systemd
     options:
       enabled_services:

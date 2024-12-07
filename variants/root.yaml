@@ -27,6 +27,32 @@ otk.define.files:
       firstboot --reconfig
       lang en_US.UTF-8
 
+    # TODO Let's upstream this as a stage?
+    repart:
+      esp: |
+        [Partition]
+        Type=esp
+        SizeMinBytes=1G
+        SizeMaxBytes=1G
+        Format=vfat
+      xbootldr: |
+        [Partition]
+        Type=xbootldr
+        SizeMinBytes=500M
+        SizeMaxBytes=500M
+        Format=ext4
+      root: |
+        [Partition]
+        Type=root
+        Format=ext4
+        SizeMinBytes=3G
+        SizeMaxBytes=3G
+      srv: |
+        [Partition]
+        Type=srv
+        Format=ext4
+        SizeMinBytes=1G
+
     # For osbuild we need to generate these files into sources that can embedded
     # in the resulting manifest so let's do that
     osbuild:
@@ -34,6 +60,14 @@ otk.define.files:
         inline:
           kickstart:
             contents: ${files.kickstart}
+          repart_esp:
+            contents: ${files.repart.esp}
+          repart_xbootldr:
+            contents: ${files.repart.xbootldr}
+          repart_root:
+            contents: ${files.repart.root}
+          repart_srv:
+            contents: ${files.repart.srv}
 
 # TODO
 otk.define.kernel:
